@@ -1,0 +1,172 @@
+/**
+ * This package provides functionality for train rearrangement operations.
+ * It defines data structures and functions to manipulate trains composed of wagons
+ * and implements algorithms for rearranging them according to specific maneuvers.
+ */
+package object train_rearrangement {
+	/** Type representing a single wagon in a train */
+	type Wagon = Any
+
+	/** Type representing a train as a list of wagons */
+	type Train = List[Wagon]
+
+	/** Type representing the current state of train rearrangement with three trains: principal, one, and two */
+	type State = (Train, Train, Train)
+
+	/** Base trait for movement operations */
+	trait Movement
+
+	/** Represents a movement to/from the first auxiliary track with n wagons */
+	case class One(n: Int) extends Movement
+
+	/** Represents a movement to/from the second auxiliary track with n wagons */
+	case class Two(n: Int) extends Movement
+
+	/** Type representing a sequence of movements that form a complete maneuver */
+	type Maneuver = List[Movement]
+
+	/* -------------------------------------------------------------------------- */
+	/*                                     1.2                                    */
+	/* -------------------------------------------------------------------------- */
+
+	/* ---------------------------------- 1.2.1 --------------------------------- */
+
+	/**
+	 * Removes a specified number of elements from the left (front) of a train.
+	 *
+	 * @param train The train to remove elements from
+	 * @param elements_to_remove The number of elements to remove
+	 * @return A new train with the specified elements removed from the left
+	 */
+	def remove_from_left(train: Train, elements_to_remove: Int): Train = // implementation
+
+	/**
+	 * Keeps the first n elements of a train.
+	 *
+	 * @param train The original train
+	 * @param n The number of elements to keep
+	 * @return A new train containing only the first n elements
+	 */
+	def keep_until(train: Train, n: Int): Train = // implementation
+
+	/**
+	 * Extracts a specified number of elements from the left (front) of a train.
+	 *
+	 * @param train The train to extract elements from
+	 * @param elements_to_extract The number of elements to extract
+	 * @return A new train containing only the extracted elements
+	 */
+	def extract_from_left(train: Train, elements_to_extract: Int): Train = // implementation
+
+	/**
+	 * Returns the elements of a train after skipping the first n elements.
+	 *
+	 * @param train The original train
+	 * @param n The number of elements to skip
+	 * @return A new train without the first n elements
+	 */
+	def keep_after(train: Train, n: Int): Train = // implementation
+
+	/**
+	 * Inserts wagons at the left (front) of a train.
+	 *
+	 * @param wagons The wagons to insert
+	 * @param train The train to insert into
+	 * @return A new train with the wagons inserted at the front
+	 */
+	def insert_into_left(wagons: List[Wagon], train: Train): Train = // implementation
+
+	/**
+	 * Inserts wagons at the right (end) of a train.
+	 *
+	 * @param wagons The wagons to insert
+	 * @param train The train to insert into
+	 * @return A new train with the wagons inserted at the end
+	 */
+	def insert_into_right(wagons: List[Wagon], train: Train): Train = // implementation
+
+	/**
+	 * Removes a specified number of elements from the right (end) of a train.
+	 *
+	 * @param train The train to remove elements from
+	 * @param elements_to_remove The number of elements to remove
+	 * @return A new train with the specified elements removed from the right
+	 */
+	def remove_from_right(train: Train, elements_to_remove: Int): Train = // implementation
+
+	/**
+	 * Extracts a specified number of elements from the right (end) of a train.
+	 *
+	 * @param train The train to extract elements from
+	 * @param elements_to_extract The number of elements to extract
+	 * @return A new train containing only the extracted elements
+	 */
+	def extract_from_right(train: Train, elements_to_extract: Int) = // implementation
+
+	/**
+	 * Applies a single movement to the current state, moving wagons between the principal train
+	 * and the auxiliary tracks according to the movement specification.
+	 *
+	 * Positive values of n move wagons from the principal train to an auxiliary track.
+	 * Negative values of n move wagons from an auxiliary track to the principal train.
+	 * Zero values leave the state unchanged.
+	 *
+	 * @param e The current state of trains (principal, one, two)
+	 * @param m The movement to apply
+	 * @return The new state after applying the movement
+	 */
+	def apply_movement(e: State, m: Movement): State = // implementation
+
+	/* ---------------------------------- 1.2.2 --------------------------------- */
+
+	/**
+	 * Applies a sequence of movements (a maneuver) to an initial state and returns
+	 * a list of all intermediate states.
+	 *
+	 * @param e The initial state of trains
+	 * @param movements The sequence of movements to apply
+	 * @return A list of states representing the result of each movement in the sequence
+	 */
+	def apply_maneuver(e: State, movements: Maneuver): List[State] = // implementation
+
+	/* ---------------------------------- 1.2.3 --------------------------------- */
+
+	/**
+	 * Finds the index of a specific wagon in a train.
+	 *
+	 * @param train The train to search in
+	 * @param wagon The wagon to find
+	 * @return The index of the wagon in the train
+	 */
+	def search_wagon_index(train: Train, wagon: Wagon): Int = // implementation
+
+	/**
+	 * Creates a maneuver to move a specific wagon to an auxiliary track and returns
+	 * the resulting principal train and the maneuver to accomplish this.
+	 *
+	 * @param principal The principal train
+	 * @param wagon The wagon to order
+	 * @return A tuple containing the new principal train and the maneuver performed
+	 */
+	def order_element(principal: Train, wagon: Wagon): (Train, Maneuver) = // implementation
+
+	/**
+	 * Creates a maneuver to order all elements in a train according to a goal arrangement.
+	 *
+	 * @param current The current train arrangement
+	 * @param goal The target train arrangement
+	 * @param n The number of wagons to process
+	 * @return A maneuver that will transform the current train into the goal arrangement
+	 */
+	def order_all_elements(current: Train, goal: Train, n: Int): Maneuver = // implementation
+
+	/**
+	 * Defines a complete maneuver to transform one train arrangement into another.
+	 * This function orchestrates the entire rearrangement process.
+	 *
+	 * @param t_1 The original train arrangement
+	 * @param t_2 The target train arrangement
+	 * @return A maneuver that will transform t_1 into t_2
+	 */
+	def definy_maneuver(t_1: Train, t_2: Train): Maneuver = // implementation
+}
