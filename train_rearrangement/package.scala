@@ -15,102 +15,84 @@ package object train_rearrangement {
 
 	/* ---------------------------------- 1.2.1 --------------------------------- */
 
-	/*
-	def remove_from_left(train: Train, elements_to_remove: Int): Train = {
-		if (elements_to_remove == 0)
-			train
-		else
-			remove_from_left(train.tail, elements_to_remove - 1)
-	}
-
-	def keep_until(train: Train, n: Int): Train = {
-		if (n == 0)
-			Nil
-		else
-			train.head :: keep_until(train.tail, n - 1)
-	}
-
-	def extract_from_left(train: Train, elements_to_extract: Int): Train = {
-		if (elements_to_extract == 0)
-			Nil
-		else
-			train.head :: extract_from_left(train.tail, elements_to_extract - 1)
-	}
-
-	def keep_after(train: Train, n: Int): Train = {
-		if (n == 0)
-			train
-		else
-			keep_after(train.tail, n - 1)
-	}
-	*/
-
 	/**
 	 * Removes a specified number of elements from the left (front) of a train.
 	 *
 	 * @param train The train to remove elements from.
-	 * @param elements_to_remove The number of elements to remove.
+	 * @param n The number of elements to remove.
 	 * @return a new train with the specified elements removed from the left
 	 */
-	def remove_from_left(train: Train, elements_to_remove: Int): Train = (elements_to_remove, train) match {
-		case (0, _) => train
-		case (n, _ :: tail) => remove_from_left(tail, n - 1)
-	}
-
-	/**
-	 * Keeps the first n elements of a train.
-	 *
-	 * @param train The original train.
-	 * @param n The number of elements to keep.
-	 * @return a new train containing only the first n elements.
-	 */
-	def keep_until(train: Train, n: Int): Train = (n, train) match {
-		case (0, _) => Nil
-		case (n, head :: tail) => head :: keep_until(tail, n - 1)
+	def remove_from_left(train: Train, n: Int): Train = {
+		train.drop(n);
 	}
 
 	/**
 	 * Extracts a specified number of elements from the left (front) of a train.
 	 *
 	 * @param train The train to extract elements from.
-	 * @param elements_to_extract The number of elements to extract.
+	 * @param n The number of elements to extract.
 	 * @return a new train containing only the extracted elements.
 	 */
-	def extract_from_left(train: Train, elements_to_extract: Int): Train = (elements_to_extract, train) match {
-		case (0, _) => Nil
-		case (n, head :: tail) => head :: extract_from_left(tail, n - 1)
+	def extract_from_left(train: Train, n: Int): Train = {
+		train.take(n)
 	}
 
 	/**
-	 * Returns the elements of a train after skipping the first n elements.
+	 * Inserts wagons at the left (front) of a train.
 	 *
-	 * @param train The original train.
-	 * @param n The number of elements to skip.
-	 * @return a new train without the first n elements.
+	 * @param wagons The wagons to insert.
+	 * @param train The train to insert into.
+	 * @return a new train with the wagons inserted at the front.
 	 */
-	def keep_after(train: Train, n: Int): Train = (n, train) match {
-		case (0, _)  => train
-		case (n, _ :: tail) => keep_after(tail, n - 1)
-	}
-
 	def insert_into_left(wagons: List[Wagon], train: Train): Train = {
 		wagons ++ train
 	}
 
+	/**
+	 * Inserts wagons at the right (end) of a train.
+	 *
+	 * @param wagons The wagons to insert.
+	 * @param train The train to insert into.
+	 * @return a new train with the wagons inserted at the end
+	 */
 	def insert_into_right(wagons: List[Wagon], train: Train): Train = {
 		train ++ wagons
 	}
 
-	def remove_from_right(train: Train, elements_to_remove: Int): Train = {
-		val n = train.length - elements_to_remove
-		keep_until(train, n)
+	/**
+	 * Removes a specified number of elements from the right (end) of a train.
+	 *
+	 * @param train The train to remove elements from.
+	 * @param elements_to_remove The number of elements to remove.
+	 * @return a new train with the specified elements removed from the right.
+	 */
+	def remove_from_right(train: Train, n: Int): Train = {
+		train.dropRight(n)
 	}
 
-	def extract_from_right(train: Train, elements_to_extract: Int) = {
-		val n = train.length - elements_to_extract
-		keep_after(train, n)
+	/**
+	 * Extracts a specified number of elements from the right (end) of a train.
+	 *
+	 * @param train The train to extract elements from.
+	 * @param elements_to_extract The number of elements to extract.
+	 * @return a new train containing only the extracted elements.
+	 */
+	def extract_from_right(train: Train, n: Int) = {
+		train.takeRight(n)
 	}
 
+	/**
+	 * Applies a single movement to the current state, moving wagons between the principal train
+	 * and the auxiliary tracks according to the movement specification.
+	 *
+	 * Positive values of n move wagons from the principal train to an auxiliary track.
+	 * Negative values of n move wagons from an auxiliary track to the principal train.
+	 * Zero values leave the state unchanged.
+	 *
+	 * @param e The current state of trains (principal, one, two).
+	 * @param m The movement to apply.
+	 * @return the new state after applying the movement.
+	 */
 	def apply_movement(e: State, m: Movement): State = {
 		val (principal: Train, one: Train, two: Train) = e
 		val principal_length = principal.length
@@ -119,43 +101,43 @@ package object train_rearrangement {
 
 		m match {
 			case One(n) => {
-				if (n > principal_length) {
+				if (n > principal_length)
 					(Nil, principal ++ one, two)
-				} else if (n > 0) {
+				else if (n > 0) {
 					val removed_elements = extract_from_right(principal, n)
 					val new_principal = remove_from_right(principal, n)
 					val new_one = insert_into_left(removed_elements, one)
 
 					(new_principal, new_one, two)
-				} else if (n == 0) {
+				} else if (n == 0)
 					(principal, one, two)
-				} else if (n < -1 * one_length) {
+				else if (n < -one_length)
 					(principal ++ one, Nil, two)
-				} else {
-					val removed_elements = extract_from_left(one, n * -1)
+				else {
+					val removed_elements = extract_from_left(one, -n)
 					val new_principal = insert_into_right(removed_elements, principal)
-					val new_one = remove_from_left(one, n * -1)
+					val new_one = remove_from_left(one, -n)
 
 					(new_principal, new_one, two)
 				}
 			}
 			case Two(n) => {
-				if (n > principal_length) {
+				if (n > principal_length)
 					(Nil, one, principal ++ two)
-				} else if (n > 0) {
+				else if (n > 0) {
 					val removed_elements = extract_from_right(principal, n)
 					val new_principal = remove_from_right(principal, n)
 					val new_two = insert_into_left(removed_elements, two)
 
 					(new_principal, one, new_two)
-				} else if (n == 0) {
+				} else if (n == 0)
 					(principal, one, two)
-				} else if (n < -1 * two_length) {
+				else if (n < -two_length)
 					(principal ++ two, one, Nil)
-				} else {
-					val removed_elements = extract_from_left(two, -1 * n)
+				else {
+					val removed_elements = extract_from_left(two, -n)
 					val new_principal = insert_into_right(removed_elements, principal)
-					val new_two = remove_from_left(two, -1 * n)
+					val new_two = remove_from_left(two, -n)
 
 					(new_principal, one, new_two)
 				}
@@ -165,41 +147,48 @@ package object train_rearrangement {
 
 	/* ---------------------------------- 1.2.2 --------------------------------- */
 
-	/*
+	/**
+	 * Applies a sequence of movements (a maneuver) to an initial state and returns
+	 * a list of all intermediate states.
+	 *
+	 * @param e The initial state of trains.
+	 * @param movements The sequence of movements to apply.
+	 * @return a list of states representing the result of each movement in the sequence.
+	 */
 	def apply_maneuver(e: State, movements: Maneuver): List[State] = {
-		if (movements.isEmpty)
-			Nil
-		else {
-			val new_state = apply_movement(e, movements.head)
-			new_state :: apply_maneuver(new_state, movements.tail)
-		}
-	}
-	*/
-
-	def apply_maneuver(e: State, movements: Maneuver): List[State] = movements match {
-		case Nil => Nil
-		case head :: tail => {
-			val new_state = apply_movement(e, head)
-			new_state :: apply_maneuver(new_state, tail)
-		}
+		movements.scanLeft(e)(apply_movement).tail
 	}
 
 	/* ---------------------------------- 1.2.3 --------------------------------- */
 
-	def search_wagon_index(train: Train, wagon: Wagon): Int =  (train, wagon) match {
-		case (wagon :: tail, _) => 0
-		case (head :: tail, _) => 1 + search_wagon_index(train.tail, wagon)
-	}
-
+	/**
+	 * Creates a maneuver to move a specific wagon to an auxiliary track and returns
+	 * the resulting principal train and the maneuver to accomplish this.
+	 *
+	 * @param principal The principal train.
+	 * @param wagon The wagon to order.
+	 * @return a tuple containing the new principal train and the maneuver performed.
+	 */
 	def order_element(principal: Train, wagon: Wagon): (Train, Maneuver) = {
 		val n = principal.length
-		val element_index = search_wagon_index(principal, wagon)
-		val maneuver = List(One(n - element_index - 1), Two(1), One(-1 * (n - element_index - 1)))
-		val new_principal = principal.take(element_index) ++ principal.drop(element_index + 1)
+		val element_index = principal.indexOf(wagon) // Finds the index of a specific wagon in a train
+		val elements_to_move = n - element_index - 1;
+		val maneuver = List(One(elements_to_move), Two(1), One(-elements_to_move))
+		// Simulate the maneuver execution (the original principal without the displaced element, that is now in
+		// Two)
+		val new_principal = extract_from_left(principal, element_index) ++ remove_from_left(principal, element_index + 1)
 
 		(new_principal, maneuver)
 	}
 
+	/**
+	 * Creates a maneuver to order all elements in a train according to a goal arrangement.
+	 *
+	 * @param current The current train arrangement.
+	 * @param goal The target train arrangement.
+	 * @param n The number of wagons to process.
+	 * @return a maneuver that will transform the current train into the goal arrangement.
+	 */
 	def order_all_elements(current: Train, goal: Train, n: Int): Maneuver = {
 		if (n == 0)
 			Nil
@@ -209,9 +198,17 @@ package object train_rearrangement {
 		}
 	}
 
-	def definy_maneuver(t_1: Train, t_2: Train): Maneuver = {
-		val n = t_1.length // = t_2.length
+	/**
+	 * Defines a complete maneuver to transform one train arrangement into another.
+	 * This function orchestrates the entire rearrangement process.
+	 *
+	 * @param original The original train arrangement.
+	 * @param target The target train arrangement.
+	 * @return a maneuver that will transform "original" into "target".
+	 */
+	def define_maneuver(original: Train, target: Train): Maneuver = {
+		val n = original.length // = t_2.length
 
-		order_all_elements(t_1, t_2, n) ++ List(Two(-1 * n))
+		order_all_elements(original, target, n) ++ List(Two(-n))
 	}
 }
