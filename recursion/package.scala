@@ -11,7 +11,7 @@ package recursion {
 	 * @param ln     The list of integers representing the exponents of the prime factors for the first number.
 	 * @param lm     The list of integers representing the exponents of the prime factors for the second number.
 	 * @param primes The list of prime numbers.
-	 * @return The GCD of the two numbers.
+	 * @return the GCD of the two numbers.
 	 */
 	def GCD_TFA(ln : List[Int], lm : List[Int], primes : List[Int]) : Int = {
 		if (primes.isEmpty)
@@ -30,8 +30,8 @@ package recursion {
 	 * @param n The first integer.
 	 * @param m The second integer.
 	 * @return A tuple containing the GCD and the Bezout coefficients (x, y) such that d = gcd(n, m) =
-	*          n * x + m * y.
-	*/
+	 *          n * x + m * y.
+	 */
 	def GCD_Bezout(n : Int, m : Int) : (Int, Int, Int) = {
 		if (m == 0)
 			(n, 1, 0)
@@ -50,7 +50,7 @@ package recursion {
 	 * Calculates the nth Fibonacci number using tree recursion.
 	 *
 	 * @param n The position of the Fibonacci number to calculate.
-	 * @return The nth Fibonacci number.
+	 * @return the nth Fibonacci number.
 	 */
 	def tree_recursion_fibonacci(n : Int) : Int = {
 		if (n == 0)
@@ -66,7 +66,7 @@ package recursion {
 	 * Calculates the Nth Fibonacci number using an iterative approach.
 	 *
 	 * @param N The position of the Fibonacci number to calculate.
-	 * @return The Nth Fibonacci number.
+	 * @return the Nth Fibonacci number.
 	 */
 	def iterative_fibonacci(N : Int) = {
 		def aux(n : Int, a : Int, b : Int) : Int = {
