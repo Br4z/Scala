@@ -1,4 +1,5 @@
-import train_rearrangement.*
+import train_rearrangement._
+
 
 object Main extends App {
 	// Initial setup

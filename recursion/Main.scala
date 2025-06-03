@@ -1,4 +1,4 @@
-import recursion.*
+import recursion._
 
 
 object Main extends App {

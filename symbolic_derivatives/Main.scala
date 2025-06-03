@@ -1,4 +1,4 @@
-import symbolic_derivatives.*
+import symbolic_derivatives._
 
 
 object Main extends App {

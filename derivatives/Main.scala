@@ -1,4 +1,4 @@
-import derivatives.*
+import derivatives._
 
 
 object Main extends App {
