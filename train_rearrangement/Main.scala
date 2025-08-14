@@ -1,4 +1,17 @@
-import train_rearrangement._
+import train_rearrangement.{Train,
+                            State,
+                            One,
+                            Two,
+                            remove_from_left,
+                            extract_from_left,
+                            remove_from_right,
+                            extract_from_right,
+                            insert_into_left,
+                            insert_into_right,
+                            apply_movement,
+                            order_element,
+                            define_maneuver,
+                            apply_maneuver}
 
 
 object Main extends App {

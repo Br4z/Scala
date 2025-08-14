@@ -1,4 +1,7 @@
-import KMeans._
+import KMeans.{generate_points,
+               initialize_means,
+               run,
+               classify}
 
 
 object Main extends App {
@@ -17,7 +20,7 @@ object Main extends App {
 	println(s"Initial means: ${initial_means.mkString(", ")}")
 
 	// Run K-means algorithm
-	val final_means = KMeans_(points, initial_means, eta)
+	val final_means = run(points, initial_means, eta)
 	println(s"Final means: ${final_means.mkString(", ")}")
 
 	// Show final classification

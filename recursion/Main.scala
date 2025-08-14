@@ -1,4 +1,7 @@
-import recursion._
+import recursion.{GCD_TFA,
+                  GCD_Bezout,
+                  tree_recursion_fibonacci,
+                  iterative_fibonacci}
 
 
 object Main extends App {

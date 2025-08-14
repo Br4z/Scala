@@ -1,4 +1,14 @@
-import symbolic_derivatives._
+import symbolic_derivatives.{Atom,
+                             Addition,
+                             Exponentiation,
+                             NaturalLogarithm,
+                             Number,
+                             show,
+                             derivate,
+                             clean,
+                             evaluate,
+                             Newton_method,
+                             good_approximation}
 
 
 object Main extends App {

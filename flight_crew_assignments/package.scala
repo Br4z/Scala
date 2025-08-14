@@ -6,108 +6,138 @@ package flight_crew_assignments {
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.1                                    */
 	/* -------------------------------------------------------------------------- */
-
-	def match_pilot(pilot: Int, number_copilots: Int): Matching = {
-		for {
-			i <- (1 to number_copilots).toList
-		} yield (pilot, i)
+	/**
+	  * Generates a list of all possible pairings for a single pilot.
+	  *
+	  * @param i The pilot's number (1-based index).
+	  * @param n The total number of copilots.
+	  * @return a list of tuples, where each tuple is a possible match for pilot `i`.
+	  */
+	def match_pilot(i: Int, n: Int): Matching = {
+		for (j <- (1 to n).toList) yield (i, j)
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.2                                    */
 	/* -------------------------------------------------------------------------- */
-
-	def math_pilots_and_copilots(pilots_and_copilots_number: Int): List[Matching] = {
-		for {
-			i <- (1 to pilots_and_copilots_number).toList
-		} yield (match_pilot(i, pilots_and_copilots_number))
+	/**
+	  * Generates a list of all possible pairings for each pilot.
+	  *
+	  * @param n The total number of pilots and copilots.
+	  * @return a list of lists, where each inner list contains all possible
+	  * pairings for a single pilot.
+	  */
+	def match_pilots_and_copilots(n: Int): List[Matching] = {
+		for (i <- (1 to n).toList) yield match_pilot(i, n)
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.3                                    */
 	/* -------------------------------------------------------------------------- */
+	/**
+	  * Generates all possible combinations of pairings, without considering validity.
+	  * This function creates the Cartesian product of all individual pilot pairings.
+	  * The result will include invalid matchings where a copilot is assigned to multiple pilots.
+	  *
+	  * @param n The total number of pilots and copilots.
+	  * @return a list of all theoretically possible matchings.
+	  */
+	def get_possible_matchings(n: Int): List[Matching] = {
+		val all_pilots_options = match_pilots_and_copilots(n)
 
-	def possible_matchings(pilots_and_copilots_number: Int): List[Matching] = {
-		def generate_combinations(combinations: List[Matching], rest: List[Matching]): List[Matching] = {
-			if (rest.isEmpty)
-				combinations
-			else {
-				val new_combination = for {
-					combination <- combinations
-					another_match <- rest.head
-				} yield (combination :+ another_match)
-
-				generate_combinations(new_combination, rest.tail)
+		/**
+		  * A recursive helper to build the combinations.
+		  * @param remainingPilots A list of lists, where each inner list is the set of
+		  * options for a pilot who has not yet been assigned.
+		  * @return a list of all generated combinations.
+		  */
+		def combine(remaining_pilots: List[Matching]): List[Matching] = {
+			remaining_pilots match {
+				// Base case: no pilots to assign
+				case Nil => List(Nil)
+				case current_pilots :: other_pilots =>
+					for {
+						rest_combination <- combine(other_pilots)
+						current_match <- current_pilots
+					} yield current_match :: rest_combination
 			}
 		}
 
-		val matches = math_pilots_and_copilots(pilots_and_copilots_number)
-
-		val initial_combination = for {
-			match_ <- matches.head
-		} yield List(match_)
-
-		generate_combinations(initial_combination, matches.tail)
+		combine(all_pilots_options)
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.4                                    */
 	/* -------------------------------------------------------------------------- */
+	/**
+	  * Filters the list of all possible matchings to find only the valid ones.
+	  * A matching is valid if and only if every copilot is assigned to exactly one pilot.
+	  *
+	  * @param n The total number of pilots and copilots.
+	  * @return a list of valid `Matching`s.
+	  */
+	def get_valid_matchings(n: Int): List[Matching] = {
+		val possible_matchings = get_possible_matchings(n)
 
-	def filter_valid_matchings(pilots_and_copilots_number: Int): List[Matching] = {
-		def is_valid(matching: Matching): Boolean = {
-			(for {
-				match_ <- matching
-			} yield match_._2).toSet.size == pilots_and_copilots_number
-		}
+			/**
+			  * Checks if a given matching is valid.
+			  * It does this by extracting all copilot numbers, converting them to a Set to
+			  * remove duplicates, and checking if the size of the set is equal to n.
+			  *
+			  * @param m The matching to validate.
+			  * @return `true` if the matching is valid, `false` otherwise.
+			  */
+			def is_valid(m: Matching): Boolean = {
+				val assigned_copilots = for (pair <- m) yield pair._2
+				assigned_copilots.toSet.size == n
+			}
 
-		val possible_matchings_ = possible_matchings(pilots_and_copilots_number)
-
-		for {
-			possible_matching <- possible_matchings_
-			if (is_valid(possible_matching))
-		} yield possible_matching
+			for (p <- possible_matchings if is_valid(p)) yield p
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.5                                    */
 	/* -------------------------------------------------------------------------- */
-
-	def weighted_matchings(pilots_and_copilots_number: Int, pilot_preferences: Preferences,
+	/**
+	  * Calculates the total preference weight for every valid matching.
+	  * The weight for a single pair (pilot i, copilot j) is P(i,j) * N(j,i).
+	  *
+	  * @param n The total number of pilots and copilots.
+	  * @param pilot_preferences The preference matrix for pilots.
+	  * @param copilot_preferences The preference matrix for copilots.
+	  * @return a list of tuples, where each tuple contains a valid matching and its total weight.
+	  */
+	def get_weighted_matchings(n: Int, pilot_preferences: Preferences,
 							copilot_preferences: Preferences): List[(Matching, Int)] = {
-		val matchings = filter_valid_matchings(pilots_and_copilots_number)
+		val valid_matchings = get_valid_matchings(n)
 
-		for {
-			matching <- matchings
-			weight = (for {
-					match_ <- matching
-					pilot = match_._1 - 1
-					copilot = match_._2 - 1
-					weight = pilot_preferences(pilot)(copilot) + copilot_preferences(copilot)(pilot)
-			} yield weight).sum
-		} yield (matching, weight)
+
+		for (matching <- valid_matchings) yield {
+			val total_weight = (for {
+				(pilot, copilot) <- matching
+				// Adjust for 0-based indexing of the vectors
+				p_i = pilot - 1
+				c_j = copilot - 1
+			} yield pilot_preferences(p_i)(c_j) * copilot_preferences(c_j)(p_i)).sum // Correctly multiply preferences
+
+			(matching, total_weight)
+		}
 	}
 
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.6                                    */
 	/* -------------------------------------------------------------------------- */
-
-	def best_matching(pilots_and_copilots_number: Int, pilot_preferences: Preferences,
+	/**
+	  * Finds the single best matching with the highest total weight.
+	  *
+	  * @param n The total number of pilots and copilots.
+	  * @param pilot_preferences The preference matrix for pilots.
+	  * @param copilot_preferences The preference matrix for copilots.
+	  * @return a single tuple containing the best matching and its weight.
+	  */
+	def best_matching(n: Int, pilot_preferences: Preferences,
 							copilot_preferences: Preferences): (Matching, Int) = {
-		val weighted_matchings_ = weighted_matchings(pilots_and_copilots_number, pilot_preferences,
-														copilot_preferences)
-
-		def aux(best: (Matching, Int), rest: List[(Matching, Int)]): (Matching, Int) = {
-			if (rest.isEmpty)
-				best
-			else {
-				val matching = rest.head
-				if (best._2 < matching._2)
-					aux(matching, rest.tail)
-				else
-					aux(best, rest.tail)
-			}
-		}
-		aux(weighted_matchings_.head, weighted_matchings_.tail)
+		val weighted_matchings = get_weighted_matchings(n, pilot_preferences, copilot_preferences)
+		weighted_matchings.maxBy(_._2)
 	}
 }

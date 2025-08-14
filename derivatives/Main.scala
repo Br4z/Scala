@@ -1,4 +1,8 @@
-import derivatives._
+import derivatives.{derivative,
+                    derivative_addition,
+                    derivative_subtraction,
+                    derivative_multiplication,
+                    derivative_division}
 
 
 object Main extends App {

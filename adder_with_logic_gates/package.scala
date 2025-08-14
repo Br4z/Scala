@@ -6,7 +6,15 @@ package adder_with_logic_gates {
 	/* -------------------------------------------------------------------------- */
 
 	/* ---------------------------------- 1.1.1 --------------------------------- */
-
+	/**
+	  * Creates a Chip from a unary logic function.
+	  * This higher-order function wraps a function that operates on a single integer (bit)
+	  * into a standard Chip that operates on a List[Int].
+	  *
+	  * @param function The unary function `Int => Int` to be converted into a Chip.
+	  * It should take one bit and return one bit.
+	  * @return a `Chip` that takes a list with one bit and returns a list with the result.
+	  */
 	def create_unary_chip(function: Int => Int): Chip = {
 		(list: List[Int]) => {
 			List(function(list.head))
@@ -14,7 +22,15 @@ package adder_with_logic_gates {
 	}
 
 	/* ---------------------------------- 1.1.2 --------------------------------- */
-
+	/**
+	  * Creates a Chip from a binary logic function.
+	  * This higher-order function wraps a function that operates on two integers (bits)
+	  * into a standard Chip that operates on a List[Int].
+	  *
+	  * @param function The binary function `(Int, Int) => Int` to be converted into a Chip.
+	  * It should take two bits and return one bit.
+	  * @return a `Chip` that takes a list with two bits and returns a list with the result.
+	  */
 	def create_binary_chip(function: (Int, Int) => Int): Chip = {
 		(list: List[Int]) => {
 			List(function(list.head, list.tail.head))
@@ -30,8 +46,17 @@ package adder_with_logic_gates {
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.2                                    */
 	/* -------------------------------------------------------------------------- */
-
-	def hald_adder: Chip = {
+	/**
+	  * Constructs a half-adder Chip.
+	  * A half-adder simulates the addition of two single bits, producing a sum and a carry.
+	  * It is built by combining the basic `and_chip`, `or_chip`, and `not_chip`.
+	  *
+	  * Input: A `List[Int]` containing two bits `[a, b]`.
+	  * Output: A `List[Int]` containing two bits `[carry, sum]`.
+	  *
+	  * @return a `Chip` representing the half-adder circuit.
+	  */
+	def half_adder: Chip = {
 		(list: List[Int]) => {
 			val a = List(list.head)
 			val b = list.tail
@@ -46,12 +71,22 @@ package adder_with_logic_gates {
 		}
 	}
 
-	val ha = hald_adder
+	val ha = half_adder
 
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.3                                    */
 	/* -------------------------------------------------------------------------- */
-
+	/**
+	  * Constructs a full-adder Chip.
+	  * A full-adder simulates the addition of two bits and an incoming carry bit,
+	  * producing a sum and a new carry-out bit. It is constructed using two
+	  * `half_adder` chips and one `or_chip`.
+	  *
+	  * Input: A `List[Int]` containing three bits `[a, b, carry_in]`.
+	  * Output: A `List[Int]` containing two bits `[carry_out, sum]`.
+	  *
+	  * @return a `Chip` representing the full-adder circuit.
+	  */
 	def full_adder: Chip = {
 		(list: List[Int]) => {
 			val a = List(list.head)
@@ -78,7 +113,17 @@ package adder_with_logic_gates {
 	/* -------------------------------------------------------------------------- */
 	/*                                     1.4                                    */
 	/* -------------------------------------------------------------------------- */
-
+	/**
+	  * Constructs an n-bit adder Chip.
+	  * This higher-order function creates a Chip capable of adding two n-bit binary numbers.
+	  * It works by chaining `n` full-adders, passing the carry from one to the next.
+	  * The implementation uses a tail-recursive helper function to process bits from
+	  * right to left (least significant to most significant).
+	  *
+	  * @param n The number of bits for each of the two numbers to be added (n >= 1).
+	  * @return a `Chip` that takes a list of `2n` bits (n for the first number, n for the second)
+	  * and returns a list of `n + 1` bits (the final carry and the n-bit sum).
+	  */
 	def adder(n: Int): Chip = {
 		def aux(number_1_bits: List[Int], number_2_bits: List[Int], actual_digit: Int, carry: Int,
 				result: List[Int]): List[Int] = {
